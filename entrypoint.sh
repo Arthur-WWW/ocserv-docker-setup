@@ -11,7 +11,7 @@ fi
 
 # 2. Setup iptables NAT forwarding for the VPN subnet
 echo "Configuring iptables for NAT..."
-iptables -t nat -A POSTROUTING -s 192.168.211.0/24 -j MASQUERADE
+iptables -t nat -C POSTROUTING -s 192.168.211.0/24 -j MASQUERADE 2>/dev/null || iptables -t nat -A POSTROUTING -s 192.168.211.0/24 -j MASQUERADE
 
 # 3. Ensure ocpasswd file exists
 if [ ! -f /etc/ocserv/config/ocpasswd ]; then
