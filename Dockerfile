@@ -8,7 +8,7 @@ ENV OCSERV_VERSION=1.5.0
 
 # Install build dependencies
 RUN apk add --no-cache \
-    build-base xz \
+    build-base xz meson ninja \
     gnutls-dev readline-dev libnl3-dev lz4-dev libseccomp-dev \
     linux-pam-dev talloc-dev protobuf-c-dev \
     curl
@@ -17,9 +17,9 @@ RUN apk add --no-cache \
 RUN curl -O https://www.infradead.org/ocserv/download/ocserv-${OCSERV_VERSION}.tar.xz \
     && tar -xf ocserv-${OCSERV_VERSION}.tar.xz \
     && cd ocserv-${OCSERV_VERSION} \
-    && ./configure --prefix=/usr --sysconfdir=/etc \
-    && make -j$(nproc) \
-    && make install
+    && meson setup build --prefix=/usr --sysconfdir=/etc \
+    && meson compile -C build \
+    && meson install -C build
 
 # ==========================================
 # Stage 2: Final Production Image
