@@ -8,9 +8,10 @@ ENV OCSERV_VERSION=1.5.0
 
 # Install build dependencies
 RUN apk add --no-cache \
-    build-base xz meson ninja \
+    build-base xz meson ninja gperf \
     gnutls-dev readline-dev libnl3-dev lz4-dev libseccomp-dev \
     linux-pam-dev talloc-dev protobuf-c-dev \
+    libev-dev krb5-dev oath-toolkit-dev libmaxminddb-dev \
     curl
 
 # Download, extract, compile and install ocserv
