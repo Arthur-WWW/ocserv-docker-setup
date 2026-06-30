@@ -39,6 +39,7 @@ RUN curl https://get.acme.sh | sh -s email=my@example.com \
 
 # Copy compiled ocserv binaries from builder
 COPY --from=builder /usr/sbin/ocserv /usr/sbin/ocserv
+COPY --from=builder /usr/sbin/ocserv-worker /usr/sbin/ocserv-worker
 COPY --from=builder /usr/bin/ocpasswd /usr/bin/ocpasswd
 COPY --from=builder /usr/bin/occtl /usr/bin/occtl
 
