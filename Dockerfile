@@ -29,7 +29,7 @@ FROM alpine:latest
 # Install runtime dependencies including socat for acme.sh standalone mode
 RUN apk add --no-cache \
     gnutls-utils iptables libnl3 readline libseccomp lz4-libs libev \
-    protobuf-c oath-toolkit-libqps oath-toolkit libmaxminddb krb5-libs pam talloc \
+    protobuf-c oath-toolkit-liboath oath-toolkit libmaxminddb krb5-libs linux-pam talloc \
     curl socat openssl
 
 # Install acme.sh
