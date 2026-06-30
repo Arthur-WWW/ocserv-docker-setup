@@ -1,0 +1,6 @@
+# Certificates and sensitive configuration
+certs/
+config/ocpasswd
+
+# OS generated files
+.DS_Store

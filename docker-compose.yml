@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  ocserv:
+    build: .
+    container_name: ocserv_server
+    restart: unless-stopped
+    ports:
+      - "80:80/tcp"      # Required for acme.sh standalone certificate challenge
+      - "443:443/tcp"
+      - "443:443/udp"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    sysctls:
+      - net.ipv4.ip_forward=1
+    environment:
+      # Uncomment and set DOMAIN to your actual domain to enable Let's Encrypt auto-certs via acme.sh
+      # - DOMAIN=vpn.example.com
+      # If DOMAIN is not set, self-signed certificates will be generated using these values:
+      - CA_CN=VPN CA
+      - CA_ORG=My Corp
+      - SRV_CN=vpn.example.com
+      - SRV_ORG=My Corp
+    volumes:
+      - ./config:/etc/ocserv/config
+      - ./certs:/etc/ocserv/certs
