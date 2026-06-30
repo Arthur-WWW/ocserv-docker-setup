@@ -3,9 +3,10 @@ services:
     build: .
     container_name: ocserv_server
     restart: unless-stopped
-    # Use host network mode for maximum UDP/DTLS performance.
-    # This bypasses Docker's userland proxy (docker-proxy) which causes severe bottlenecks and UDP fragmentation drops.
-    network_mode: host
+    privileged: true
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
     cap_add:
       - NET_ADMIN
     devices:
