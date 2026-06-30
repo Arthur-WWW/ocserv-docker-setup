@@ -6,7 +6,9 @@ services:
     container_name: ocserv_server
     restart: unless-stopped
     ports:
-      - "80:80/tcp"      # Required for acme.sh standalone certificate challenge
+      # - "80:80/tcp"      # Uncomment this if you set DOMAIN below for Let's Encrypt auto-certs
+      # If port 443 is occupied by Nginx/Caddy on your host, change the left side to a custom port (e.g., "8443:443/tcp")
+      # Note: If you change the port, you must append it to the address in your VPN client (e.g., vpn.example.com:8443)
       - "443:443/tcp"
       - "443:443/udp"
     cap_add:
