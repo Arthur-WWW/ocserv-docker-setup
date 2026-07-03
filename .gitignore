@@ -1,6 +1,7 @@
 # Certificates and sensitive configuration
 certs/
 config/ocpasswd
+config/acme/
 
 # OS generated files
 .DS_Store

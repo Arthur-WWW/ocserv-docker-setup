@@ -25,6 +25,13 @@ mkdir -p /etc/ocserv/certs
 if [ -n "$DOMAIN" ]; then
     echo "DOMAIN is set to $DOMAIN. Managing Let's Encrypt certificates via acme.sh..."
 
+    # acme.sh keeps its account key and per-cert renewal state in a "home" dir.
+    # The apk-packaged acme.sh has NO default home, so every invocation must
+    # pass --home explicitly. We keep it under the bind-mounted config volume
+    # so the account and renewal state survive container restarts.
+    ACME_HOME=/etc/ocserv/config/acme
+    mkdir -p "$ACME_HOME"
+
     # Register (or update) the ACME account using the deployer's own email.
     # The email is NOT baked into the image; it must be supplied at runtime via
     # the ACME_EMAIL environment variable when DOMAIN is set.
@@ -32,24 +39,34 @@ if [ -n "$DOMAIN" ]; then
         echo "Error: ACME_EMAIL is required when DOMAIN is set (used for Let's Encrypt account registration and expiry notices)." >&2
         exit 1
     fi
-    acme.sh --register-account -m "$ACME_EMAIL" 2>/dev/null || acme.sh --update-account -m "$ACME_EMAIL"
+    acme.sh --register-account -m "$ACME_EMAIL" --home "$ACME_HOME" --server letsencrypt 2>/dev/null \
+        || acme.sh --update-account -m "$ACME_EMAIL" --home "$ACME_HOME" --server letsencrypt
 
     if [ ! -f "/etc/ocserv/certs/server-cert.pem" ]; then
         echo "No certificate found for $DOMAIN. Issuing a new one..."
         # Use standalone mode (requires port 80 to be mapped and free)
-        acme.sh --issue -d "$DOMAIN" --standalone
-        
+        acme.sh --issue -d "$DOMAIN" --standalone --home "$ACME_HOME" --server letsencrypt
+
         echo "Installing certificate into /etc/ocserv/certs..."
+        # No --reloadcmd: ocserv periodically checks the cert files and reloads
+        # them automatically on change, so renewal takes effect without a
+        # restart. On first run ocserv is not started yet anyway, so a reload
+        # command would fail and just noise the logs.
         acme.sh --install-cert -d "$DOMAIN" \
                 --cert-file      /etc/ocserv/certs/server-cert.pem  \
                 --key-file       /etc/ocserv/certs/server-key.pem  \
                 --fullchain-file /etc/ocserv/certs/fullchain.pem \
-                --reloadcmd     "occtl reload"
+                --home "$ACME_HOME" --server letsencrypt
     else
         echo "Certificate for $DOMAIN already exists."
     fi
-    
-    # Start cron daemon to handle automatic renewals for acme.sh
+
+    # Register the renewal cron job. --home MUST be passed here too: acme.sh
+    # bakes the --home value into the cron entry it writes, and the renewal
+    # will silently no-op if it points at a directory with no account/cert
+    # state. Verified that --install-cronjob propagates --home correctly.
+    acme.sh --install-cronjob --home "$ACME_HOME"
+    # Start cron daemon to handle automatic renewals for acme.sh.
     crond
 else
     echo "No DOMAIN specified. Using or generating self-signed certificates..."

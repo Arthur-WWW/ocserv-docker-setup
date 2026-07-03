@@ -7,7 +7,7 @@ Built using a modern Docker multi-stage architecture, it completely isolates the
 
 - **Extreme Lightness & Security**: Uses `alpine:latest` and compiles `ocserv 1.5.0` (or newer) directly from official sources. The final image size is drastically minimized by stripping build dependencies.
 - **Smart Certificate Management**:
-  - Provisions **Let's Encrypt** certificates if a domain is provided (via bundled `acme.sh`). Initial issuance works out of the box once port 80 is mapped; automatic renewal is being wired up.
+  - Provisions and automatically renews **Let's Encrypt** certificates if a domain is provided (via bundled `acme.sh`). Renewal runs daily via an in-container cron job; ocserv picks up the renewed cert files automatically.
   - Gracefully falls back to generating secure **Self-Signed Certificates** if no domain is used.
 - **Robust Mobile & Network Compatibility**:
   - Full support for **Cisco AnyConnect** and **OpenConnect** clients.
