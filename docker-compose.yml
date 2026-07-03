@@ -32,3 +32,10 @@ services:
     volumes:
       - ./config:/etc/ocserv/config
       - ./certs:/etc/ocserv/certs
+    # Cap log growth so a long-running server can't fill the host disk.
+    # ocserv runs at -d 1 (debug-level) which is verbose, so this is a real risk.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
