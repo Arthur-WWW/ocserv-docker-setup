@@ -11,8 +11,8 @@ Built using a modern Docker multi-stage architecture, it completely isolates the
   - Gracefully falls back to generating secure **Self-Signed Certificates** if no domain is used.
 - **Robust Mobile & Network Compatibility**:
   - Full support for **Cisco AnyConnect** and **OpenConnect** clients.
-  - Implements **Strict TLS Priorities** to prevent fallback to slow, legacy ciphers (resolves common connection stalls).
-  - Includes **MTU Discovery** and tuned **Dead Peer Detection (DPD)** to prevent disconnects on mobile devices during network handover.
+- Uses **GnuTLS NORMAL TLS Priorities** with `%COMPAT` enabled for broad compatibility with Cisco AnyConnect and OpenConnect clients.
+- Uses a **conservative fixed MTU (1280)** and tuned **Dead Peer Detection (DPD)** to prevent UDP fragmentation and packet loss on mobile/cellular networks.
   - Uses a conflict-free default subnet (`192.168.211.0/24`) to avoid routing issues with home/corporate WiFi networks.
 - **Secure Architecture**: Drops privileged mode. Requires only `NET_ADMIN` capability and safely handles `iptables` NAT forwarding internally.
 
