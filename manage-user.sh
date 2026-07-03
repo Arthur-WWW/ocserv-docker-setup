@@ -45,7 +45,10 @@ case $COMMAND in
         ;;
     list)
         echo "Current users in the system:"
-        docker exec -it $CONTAINER_NAME cat /etc/ocserv/config/ocpasswd | cut -d ':' -f 1
+        # No -t here: output is piped to cut, so a TTY is not needed and would
+        # inject CR characters into the piped text. (add/delete/lock/unlock above
+        # keep -it because ocpasswd reads the password from a TTY.)
+        docker exec -i "$CONTAINER_NAME" cat /etc/ocserv/config/ocpasswd | cut -d ':' -f 1
         ;;
     *)
         echo "Invalid command: $COMMAND"
