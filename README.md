@@ -7,7 +7,7 @@ Built using a modern Docker multi-stage architecture, it completely isolates the
 
 - **Extreme Lightness & Security**: Uses `alpine:latest` and compiles `ocserv 1.5.0` (or newer) directly from official sources. The final image size is drastically minimized by stripping build dependencies.
 - **Smart Certificate Management**:
-  - Automatically provisions and renews **Let's Encrypt** certificates if a domain is provided (via bundled `acme.sh`).
+  - Provisions **Let's Encrypt** certificates if a domain is provided (via bundled `acme.sh`). Initial issuance works out of the box once port 80 is mapped; automatic renewal is being wired up.
   - Gracefully falls back to generating secure **Self-Signed Certificates** if no domain is used.
 - **Robust Mobile & Network Compatibility**:
   - Full support for **Cisco AnyConnect** and **OpenConnect** clients.
@@ -34,7 +34,8 @@ cd ocserv-docker-setup
 ### 2. Configure (Optional)
 If you have a domain name pointing to your server's IP and wish to use valid Let's Encrypt certificates:
 1. Open `docker-compose.yml`.
-2. Uncomment the `DOMAIN` environment variable and set it to your domain (e.g., `DOMAIN=vpn.example.com`).
+2. Uncomment the `DOMAIN` and `ACME_EMAIL` environment variables and set them to your domain (e.g., `DOMAIN=vpn.example.com`) and your email (e.g., `ACME_EMAIL=admin@example.com`).
+3. Uncomment the `80:80/tcp` port mapping. Port 80 must be free on the host and reachable from the public internet, because acme.sh uses it for the ACME http-01 challenge in standalone mode.
 
 *If you skip this step, the server will automatically generate self-signed certificates on its first run.*
 

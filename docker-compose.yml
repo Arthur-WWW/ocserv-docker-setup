@@ -6,6 +6,10 @@ services:
     ports:
       - "443:443/tcp"
       - "443:443/udp"
+      # Uncomment to enable Let's Encrypt certificate issuance via acme.sh
+      # standalone mode. Port 80 must be free on the host and reachable from
+      # the public internet for the ACME http-01 challenge to succeed.
+      # - "80:80/tcp"
     cap_add:
       - NET_ADMIN
     devices:
