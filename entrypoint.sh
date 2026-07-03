@@ -73,8 +73,13 @@ else
     
     if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-cert.pem ]; then
         echo "Generating self-signed CA and server certificates..."
-        
-        certtool --generate-privkey --outfile /etc/ocserv/certs/ca-key.pem
+
+        # The CA private key is only needed to sign the server cert; ocserv
+        # never uses it at runtime. Generate it in /tmp and delete it right
+        # after signing, so the root trust key is NOT persisted onto the
+        # bind-mounted certs/ volume (host backups, other containers, etc).
+        certtool --generate-privkey --outfile /tmp/ca-key.pem
+        chmod 600 /tmp/ca-key.pem
         cat <<EOF > /tmp/ca.tmpl
 cn = "${CA_CN:-VPN CA}"
 organization = "${CA_ORG:-Private Network}"
@@ -85,7 +90,7 @@ signing_key
 cert_signing_key
 crl_signing_key
 EOF
-        certtool --generate-self-signed --load-privkey /etc/ocserv/certs/ca-key.pem \
+        certtool --generate-self-signed --load-privkey /tmp/ca-key.pem \
             --template /tmp/ca.tmpl --outfile /etc/ocserv/certs/ca-cert.pem
 
         certtool --generate-privkey --outfile /etc/ocserv/certs/server-key.pem
@@ -100,8 +105,14 @@ signing_key
 EOF
         certtool --generate-certificate --load-privkey /etc/ocserv/certs/server-key.pem \
             --load-ca-certificate /etc/ocserv/certs/ca-cert.pem \
-            --load-ca-privkey /etc/ocserv/certs/ca-key.pem \
+            --load-ca-privkey /tmp/ca-key.pem \
             --template /tmp/server.tmpl --outfile /etc/ocserv/certs/server-cert.pem
+
+        # Private key used only to sign the server cert; destroy it now.
+        rm -f /tmp/ca-key.pem
+        # Restrict the persisted private key to the owner (certtool's default
+        # perms are too open for a key on a host-mounted volume).
+        chmod 600 /etc/ocserv/certs/server-key.pem
     fi
 fi
 
