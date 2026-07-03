@@ -24,7 +24,16 @@ mkdir -p /etc/ocserv/certs
 
 if [ -n "$DOMAIN" ]; then
     echo "DOMAIN is set to $DOMAIN. Managing Let's Encrypt certificates via acme.sh..."
-    
+
+    # Register (or update) the ACME account using the deployer's own email.
+    # The email is NOT baked into the image; it must be supplied at runtime via
+    # the ACME_EMAIL environment variable when DOMAIN is set.
+    if [ -z "$ACME_EMAIL" ]; then
+        echo "Error: ACME_EMAIL is required when DOMAIN is set (used for Let's Encrypt account registration and expiry notices)." >&2
+        exit 1
+    fi
+    acme.sh --register-account -m "$ACME_EMAIL" 2>/dev/null || acme.sh --update-account -m "$ACME_EMAIL"
+
     if [ ! -f "/etc/ocserv/certs/server-cert.pem" ]; then
         echo "No certificate found for $DOMAIN. Issuing a new one..."
         # Use standalone mode (requires port 80 to be mapped and free)

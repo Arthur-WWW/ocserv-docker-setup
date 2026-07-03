@@ -15,8 +15,11 @@ services:
     security_opt:
       - no-new-privileges:true
     environment:
-      # Uncomment and set DOMAIN to your actual domain to enable Let's Encrypt auto-certs via acme.sh
+      # Uncomment and set DOMAIN to your actual domain to enable Let's Encrypt auto-certs via acme.sh.
+      # When DOMAIN is set, ACME_EMAIL is also required (used for the Let's Encrypt account
+      # and certificate expiry notices).
       # - DOMAIN=vpn.example.com
+      # - ACME_EMAIL=admin@example.com
       # If DOMAIN is not set, self-signed certificates will be generated using these values:
       - CA_CN=VPN CA
       - CA_ORG=My Corp

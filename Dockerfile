@@ -1,7 +1,9 @@
 # ==========================================
 # Stage 1: Builder
 # ==========================================
-FROM alpine:latest AS builder
+# Pin the minor Alpine release instead of :latest so builds are reproducible
+# and the base layer cannot drift on an unexpected rebuild. Bump deliberately.
+FROM alpine:3.22 AS builder
 
 # Set ocserv version to compile
 ENV OCSERV_VERSION=1.5.0
@@ -25,7 +27,7 @@ RUN curl -O https://www.infradead.org/ocserv/download/ocserv-${OCSERV_VERSION}.t
 # ==========================================
 # Stage 2: Final Production Image
 # ==========================================
-FROM alpine:latest
+FROM alpine:3.22
 
 # Install runtime dependencies including socat for acme.sh standalone mode
 RUN apk add --no-cache \
@@ -33,9 +35,12 @@ RUN apk add --no-cache \
     protobuf-c oath-toolkit-liboath oath-toolkit libmaxminddb krb5-libs linux-pam talloc \
     curl socat openssl
 
-# Install acme.sh
-RUN curl https://get.acme.sh | sh -s email=my@example.com \
-    && ln -s /root/.acme.sh/acme.sh /usr/local/bin/acme.sh
+# Install acme.sh from the official Alpine package.
+# This avoids piping a remote installer into a shell (curl|sh), avoids baking a
+# placeholder ACME email into the image, and installs to a standard system path
+# (/usr/bin/acme.sh, /usr/share/acme.sh) instead of depending on root's HOME.
+# The deployer's email is registered at runtime in entrypoint.sh via ACME_EMAIL.
+RUN apk add --no-cache acme.sh
 
 # Copy compiled ocserv binaries from builder
 COPY --from=builder /usr/sbin/ocserv /usr/sbin/ocserv
