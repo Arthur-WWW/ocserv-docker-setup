@@ -29,7 +29,12 @@ RUN curl -O https://www.infradead.org/ocserv/download/ocserv-${OCSERV_VERSION}.t
 # ==========================================
 FROM alpine:3.22
 
-# Install runtime dependencies including socat for acme.sh standalone mode
+# Runtime dependencies. ocserv itself is linked against most of these at build
+# time (libnl3, libseccomp, lz4-libs, libev, protobuf-c, oath, krb5, maxminddb,
+# linux-pam, talloc); gnutls-utils provides `certtool` for self-signed certs.
+# curl/socat/openssl are runtime dependencies of acme.sh (per its apk metadata),
+# not of standalone mode itself -- do not remove them on the assumption that
+# they are unused.
 RUN apk add --no-cache \
     gnutls-utils iptables libnl3 readline libseccomp lz4-libs libev \
     protobuf-c oath-toolkit-liboath oath-toolkit libmaxminddb krb5-libs linux-pam talloc \
