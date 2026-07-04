@@ -5,7 +5,7 @@ Built using a modern Docker multi-stage architecture, it completely isolates the
 
 ## ✨ Key Features
 
-- **Extreme Lightness & Security**: Uses `alpine:latest` and compiles `ocserv 1.5.0` (or newer) directly from official sources. The final image size is drastically minimized by stripping build dependencies.
+- **Extreme Lightness & Security**: Uses a pinned `alpine:3.22` base and compiles `ocserv 1.5.0` (or newer) directly from official sources. The final image size is drastically minimized by stripping build dependencies.
 - **Smart Certificate Management**:
   - Provisions and automatically renews **Let's Encrypt** certificates if a domain is provided (via bundled `acme.sh`). Renewal runs daily via an in-container cron job; ocserv picks up the renewed cert files automatically.
   - Gracefully falls back to generating secure **Self-Signed Certificates** if no domain is used.
