@@ -28,7 +28,15 @@ services:
       - CA_CN=VPN CA
       - CA_ORG=My Corp
       - SRV_CN=vpn.example.com
+      # Optional SANs for self-signed certificates. Leave commented for the original CN-only behavior.
+      # - SRV_DNS=vpn.example.com
+      # - SRV_IP=203.0.113.10
       - SRV_ORG=My Corp
+      # Defaults to the ipv4-network CIDR in config/ocserv.conf when unset.
+      # - VPN_IPV4_CIDR=192.168.211.0/24
+      # Keep off unless config/ocserv.conf IPv6 settings are also enabled.
+      - VPN_IPV6_MODE=off
+      # - VPN_IPV6_CIDR=fda9:4efe:7e3b:03ea::/64
     volumes:
       - ./config:/etc/ocserv/config
       - ./certs:/etc/ocserv/certs

@@ -7,6 +7,7 @@ FROM alpine:3.22 AS builder
 
 # Set ocserv version to compile
 ENV OCSERV_VERSION=1.5.0
+ENV OCSERV_SHA256=42ced08958b9576ab134fcb7bdc7f8df5e13214fd147855f99021fedcf0eedbe
 
 # Install build dependencies
 RUN apk add --no-cache \
@@ -16,8 +17,9 @@ RUN apk add --no-cache \
     libev-dev krb5-dev oath-toolkit-dev libmaxminddb-dev \
     curl
 
-# Download, extract, compile and install ocserv
-RUN curl -O https://www.infradead.org/ocserv/download/ocserv-${OCSERV_VERSION}.tar.xz \
+# Download, verify, extract, compile and install ocserv
+RUN curl -fsSLO https://www.infradead.org/ocserv/download/ocserv-${OCSERV_VERSION}.tar.xz \
+    && echo "${OCSERV_SHA256}  ocserv-${OCSERV_VERSION}.tar.xz" | sha256sum -c - \
     && tar -xf ocserv-${OCSERV_VERSION}.tar.xz \
     && cd ocserv-${OCSERV_VERSION} \
     && meson setup build --prefix=/usr --sysconfdir=/etc \

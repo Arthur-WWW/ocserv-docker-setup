@@ -39,6 +39,13 @@ If you have a domain name pointing to your server's IP and wish to use valid Let
 
 *If you skip this step, the server will automatically generate self-signed certificates on its first run.*
 
+For self-signed certificates, SAN values are optional. Leave them commented to keep the default CN-only certificate behavior; set them before the first run only if your client requires SANs:
+```yaml
+# - SRV_DNS=vpn.example.com
+# If you connect by VPS IP instead of DNS, set this to the VPS public IP.
+# - SRV_IP=203.0.113.10
+```
+
 ### 3. Build & Run
 Start the service in the background. The initial run will download the official ocserv source code and compile it locally.
 ```bash
@@ -82,3 +89,15 @@ Download the official client for your platform:
 All core configurations are exposed via the `config/` directory after the first run.
 - **`config/ocserv.conf`**: The main VPN settings (Subnets, DNS, Routing, TLS configs). The service requires a restart (`docker-compose restart`) to apply changes.
 - **`certs/`**: The directory where your certificates are stored. You can drop your own valid `server-cert.pem` and `server-key.pem` here manually if you prefer not to use the bundled `acme.sh` logic.
+
+### VPN subnet
+
+The default VPN client subnet is `192.168.211.0/24` in `config/ocserv.conf`. `entrypoint.sh` derives NAT from that CIDR automatically. If you need to override it without editing the config, set `VPN_IPV4_CIDR` in `docker-compose.yml`, and keep it matched to `ipv4-network`.
+
+### IPv6
+
+The default setup is IPv4 full tunnel. `VPN_IPV6_MODE=off` avoids creating partial IPv6 NAT rules. If your VPS and clients have public IPv6, either disable IPv6 on the clients to avoid IPv6 traffic bypassing the VPN, or enable full IPv6 tunneling:
+
+1. Uncomment the IPv6 block in `config/ocserv.conf`.
+2. Set `VPN_IPV6_MODE=nat` in `docker-compose.yml`.
+3. Keep `VPN_IPV6_CIDR` matched to the `ipv6-network` value.
